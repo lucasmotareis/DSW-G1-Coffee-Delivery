@@ -44,43 +44,31 @@ interface CoffeeInCart {
   subTotal: number;
 } 
 
-// type pagamento ={
-//   juros: number ,
-//   nome : string
-// } 
+interface pagamento {
+  juros: number ,
+  jurosString: string,
+  nome : string
+} 
 
 
 
 const DELIVERY_PRICE = 3.75;
 
 export function Cart() {
-  const [metodPayment, setMetodPayment] = useState("Dinheiro ou Pix")
-  const [juros, setJuros] = useState(1)
-  const [jurosString, setJurosString] = useState("0%")
+  const [metodPayment, setMetodPayment] = useState<pagamento>({juros:1,jurosString:"0%", nome: "Pix ou Dinheiro"})
 
-//tentei fazer so com um utilizando uma interface, so que nao estava consegguindo, entao criei 33 logo na tora
+
 
   function changeMetodPayment(metodo :string) {
 
     if (metodo === "cash") {
-
-      setMetodPayment("Dinheiro ou Pix")
-      setJuros(1)
-      setJurosString("0")
-      
+      setMetodPayment({juros:1,  jurosString: "0%",  nome : "Pix ou Dinheiro"})
     }
     if (metodo === "debit") {
-
-      setMetodPayment("Cartão de Débito")
-      setJuros(1.185)
-      setJurosString("1,85%")
-
+      setMetodPayment({juros:1.185,  jurosString: "1,85%",  nome : "Cartão de Débito"})
     }
     if (metodo === "credit") {
-
-      setMetodPayment("Cartão de Credito")
-      setJuros(1.385)
-      setJurosString("3,85%")
+      setMetodPayment({juros:1.385,  jurosString: "3,85%",  nome : "Cartão de Crédito"})
     }
 
   }
@@ -193,7 +181,7 @@ export function Cart() {
             <PaymentOptions >
               <div>
                 <Radio
-                  isSelected={false}
+                  isSelected={metodPayment.nome === "Cartão de Crédito"}
                   onClick={() => {changeMetodPayment("credit")}}
                   value="credit"
                 >
@@ -202,7 +190,7 @@ export function Cart() {
                 </Radio>
 
                 <Radio
-                  isSelected={false}
+                  isSelected={metodPayment.nome === "Cartão de Débito"}
                   onClick={() => {changeMetodPayment("debit")}}
                   value="debit"
                 >
@@ -211,7 +199,7 @@ export function Cart() {
                 </Radio>
 
                 <Radio
-                  isSelected={true}
+                  isSelected={metodPayment.nome === "Pix ou Dinheiro"}
                   onClick={() => {changeMetodPayment("cash")}}
                   value="cash"
                 >
@@ -293,7 +281,7 @@ export function Cart() {
             <div>
               <span>Método de Pagamento</span>
               <span>
-                {metodPayment}
+                {metodPayment.nome}
               </span>
             </div>
 
@@ -301,7 +289,7 @@ export function Cart() {
               <span>Juros
               </span>
               <span>
-               {jurosString}
+               {metodPayment.jurosString}
               </span>
             </div>
             <div>
@@ -310,7 +298,7 @@ export function Cart() {
                 {new Intl.NumberFormat('pt-br', {
                   currency: 'BRL',
                   style: 'currency',
-                }).format((totalItemsPrice + (DELIVERY_PRICE * amountTags.length))*juros)}
+                }).format((totalItemsPrice + (DELIVERY_PRICE * amountTags.length))*metodPayment.juros)}
               </span>
             </div>
           </CartTotalInfo>

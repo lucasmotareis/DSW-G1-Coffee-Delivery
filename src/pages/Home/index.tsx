@@ -19,22 +19,42 @@ interface Coffee {
   favorite: boolean;
 };
 
+
+interface Categoria {
+  value:string;
+  isSelected : boolean;
+};
+
 export function Home() {
   const theme = useTheme();
   const [coffees, setCoffees] = useState<Coffee[]>([]);
+  const [categoria, setCategoria] = useState<Categoria>({value:"",isSelected: false});
 
 
+ //Usando o metodo GET com AXIOS
   useEffect(() => {
-    const fetchApi = async () => {
-      try {
-        const response = await api.get<Coffee[]>('/coffees')
-        setCoffees(response.data)
-      } catch (error) {
-        console.log('Deu ruim...', error)
-      }
-    }
-    fetchApi();
-  }, []);
+    api.get<Coffee[]>('/coffees')
+    .then(function (response) {
+      const sortedCoffees = response.data.sort((a, b) =>
+        a.title.localeCompare(b.title, 'pt', { sensitivity: 'base' })
+      )
+      setCoffees(sortedCoffees)
+    });
+  },[]);
+
+  //   const fetchApi = async () => {
+  //     try {
+  //       const response = await api.get<Coffee[]>('/coffees')
+  //       const sortedCoffees = response.data.sort((a, b) =>
+  //         a.title.localeCompare(b.title, 'pt', { sensitivity: 'base' })
+  //       )
+  //       setCoffees(sortedCoffees)
+  //     } catch (error) {
+  //       console.log('Deu ruim...', error)
+  //     }
+  //   }
+  //   fetchApi();
+  // }, []);
 
 
   
@@ -69,15 +89,12 @@ export function Home() {
     );
   }
 
-  function mudarCoisa(valor : [string]){
-    
-    const tags = coffees.filter((cafe)=> cafe.tags === valor)
-    console.log(tags)
-    // setCoffees((prevState) =>
-    //   prevState.filter((bora)=>bora.id === tags.),
-    // )
+  function mudarCategoria(valor : string){
+    if (categoria.value === valor){
+      return setCategoria((prevState) =>  ({value: valor, isSelected: !prevState.isSelected}))
 
-
+    }
+    setCategoria({ value: valor, isSelected: true})
   }
 
   function handleFavoriteCoffee(id: string) {
@@ -92,8 +109,6 @@ export function Home() {
         return coffee
       }),
     )
-
-    
   }
 
   return (
@@ -164,22 +179,22 @@ export function Home() {
         <h2>Nossos cafés</h2>
         <Navbar>
           <Radio
-            onClick={() => {mudarCoisa(["tradicional"])}}
-            isSelected={false}
+            onClick={() => {mudarCategoria("tradicional")}}
+            isSelected={categoria.value === "tradicional" && categoria.isSelected === true}
             value="tradicional"
           >
             <span>Tradicional</span>
           </Radio>
           <Radio
-            onClick={() => {}}
-            isSelected={false}
+            onClick={() => {mudarCategoria("gelado")}}
+            isSelected={categoria.value === "gelado" && categoria.isSelected === true}
             value="gelado"
           >
             <span>Gelado</span>
           </Radio>
           <Radio
-            onClick={() => {}}
-            isSelected={false}
+            onClick={() => {mudarCategoria("com leite")}}
+            isSelected={categoria.value === "com leite" && categoria.isSelected === true}
             value="com leite"
           >
             <span>Com leite</span>
@@ -188,7 +203,19 @@ export function Home() {
 
 
         <div>
-          {coffees.map((coffee) => (
+          
+          {categoria.isSelected ?
+            coffees.filter((coffee) => coffee.tags.includes(categoria.value))
+            .map((coffee) =>(
+              <CoffeeCard
+                key={coffee.id}
+                coffee={coffee}
+                incrementQuantity={incrementQuantity}
+                decrementQuantity={decrementQuantity}
+                handleFavoriteCoffee={handleFavoriteCoffee}
+              />
+              ))
+          :coffees.map((coffee) =>(
             <CoffeeCard
               key={coffee.id}
               coffee={coffee}
@@ -196,7 +223,7 @@ export function Home() {
               decrementQuantity={decrementQuantity}
               handleFavoriteCoffee={handleFavoriteCoffee}
             />
-          ))}
+            ))}
         </div>
       </CoffeeList>
     </div>
