@@ -23,14 +23,17 @@ export function Home() {
   const theme = useTheme();
   const [coffees, setCoffees] = useState<Coffee[]>([]);
 
-  useEffect(() => {
-    async function fetchCoffees() {
-      const response = await api('/coffees');
-      setCoffees(response.data);
 
-      console.log({coffees: response.data});
+  useEffect(() => {
+    const fetchApi = async () => {
+      try {
+        const response = await api.get<Coffee[]>('/coffees')
+        setCoffees(response.data)
+      } catch (error) {
+        console.log('Deu ruim...', error)
+      }
     }
-    fetchCoffees();
+    fetchApi();
   }, []);
 
 
@@ -50,6 +53,8 @@ export function Home() {
     );
   }
 
+
+
   function decrementQuantity(id: string) {
     setCoffees((prevState) =>
       prevState.map((coffee) => {
@@ -64,6 +69,17 @@ export function Home() {
     );
   }
 
+  function mudarCoisa(valor : [string]){
+    
+    const tags = coffees.filter((cafe)=> cafe.tags === valor)
+    console.log(tags)
+    // setCoffees((prevState) =>
+    //   prevState.filter((bora)=>bora.id === tags.),
+    // )
+
+
+  }
+
   function handleFavoriteCoffee(id: string) {
     setCoffees((prevState) =>
       prevState.map((coffee) => {
@@ -76,6 +92,7 @@ export function Home() {
         return coffee
       }),
     )
+
     
   }
 
@@ -147,7 +164,7 @@ export function Home() {
         <h2>Nossos cafés</h2>
         <Navbar>
           <Radio
-            onClick={() => {}}
+            onClick={() => {mudarCoisa(["tradicional"])}}
             isSelected={false}
             value="tradicional"
           >

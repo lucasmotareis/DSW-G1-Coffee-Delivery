@@ -44,9 +44,47 @@ interface CoffeeInCart {
   subTotal: number;
 } 
 
+// type pagamento ={
+//   juros: number ,
+//   nome : string
+// } 
+
+
+
 const DELIVERY_PRICE = 3.75;
 
 export function Cart() {
+  const [metodPayment, setMetodPayment] = useState("Dinheiro ou Pix")
+  const [juros, setJuros] = useState(1)
+  const [jurosString, setJurosString] = useState("0%")
+
+//tentei fazer so com um utilizando uma interface, so que nao estava consegguindo, entao criei 33 logo na tora
+
+  function changeMetodPayment(metodo :string) {
+
+    if (metodo === "cash") {
+
+      setMetodPayment("Dinheiro ou Pix")
+      setJuros(1)
+      setJurosString("0")
+      
+    }
+    if (metodo === "debit") {
+
+      setMetodPayment("Cartão de Débito")
+      setJuros(1.185)
+      setJurosString("1,85%")
+
+    }
+    if (metodo === "credit") {
+
+      setMetodPayment("Cartão de Credito")
+      setJuros(1.385)
+      setJurosString("3,85%")
+    }
+
+  }
+
   const [coffeesInCart, setCoffeesInCart] = useState<CoffeeInCart[]>([
     {
       id: "0",
@@ -152,11 +190,11 @@ export function Cart() {
               </div>
             </PaymentHeading>
 
-            <PaymentOptions>
+            <PaymentOptions >
               <div>
                 <Radio
                   isSelected={false}
-                  onClick={() => {}}
+                  onClick={() => {changeMetodPayment("credit")}}
                   value="credit"
                 >
                   <CreditCard size={16} />
@@ -165,7 +203,7 @@ export function Cart() {
 
                 <Radio
                   isSelected={false}
-                  onClick={() => {}}
+                  onClick={() => {changeMetodPayment("debit")}}
                   value="debit"
                 >
                   <Bank size={16} />
@@ -174,7 +212,7 @@ export function Cart() {
 
                 <Radio
                   isSelected={true}
-                  onClick={() => {}}
+                  onClick={() => {changeMetodPayment("cash")}}
                   value="cash"
                 >
                   <Money size={16} />
@@ -253,12 +291,26 @@ export function Cart() {
             </div>
 
             <div>
+              <span>Método de Pagamento</span>
+              <span>
+                {metodPayment}
+              </span>
+            </div>
+
+            <div>
+              <span>Juros
+              </span>
+              <span>
+               {jurosString}
+              </span>
+            </div>
+            <div>
               <span>Total</span>
               <span>
                 {new Intl.NumberFormat('pt-br', {
                   currency: 'BRL',
                   style: 'currency',
-                }).format(totalItemsPrice + (DELIVERY_PRICE * amountTags.length))}
+                }).format((totalItemsPrice + (DELIVERY_PRICE * amountTags.length))*juros)}
               </span>
             </div>
           </CartTotalInfo>
